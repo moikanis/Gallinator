@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallinator</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #222;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      overflow: auto;
+    }
+
+    .game-container {
+      display: none;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      width: 80%;
+      margin-top: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(7, 1fr);
+      gap: 0;
+      width: 90vw;
+      max-width: 500px;
+      aspect-ratio: 1 / 1;
+      margin-bottom: 20px;
+      min-width: 300px;
+      min-height: 300px;
+      background-image: url('https://img.freepik.com/foto-gratuito/campo-di-raccolto-verde_1204-121.jpg?ga=GA1.1.1767075036.1745331310&semt=ais_hybrid&w=740');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .cell {
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: clamp(16px, 4vw, 24px);
+    }
+
+    .start-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+    }
+
+    .start-screen .overlay-content {
+      background-color: #333;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 20px black;
+    }
+
+    .start-screen h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .start-screen p {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    .start-screen button {
+      padding: 15px 30px;
+      font-size: 24px;
+      background-color: #444;
+      color: white;
+      border: none;
+    }
+
+    .start-screen button:hover {
+      background-color: #666;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+    
+   .overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Assicurati sia sopra tutto */
+}
+
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 50px 50px 50px;
+      grid-template-rows: 50px 50px 50px;
+      gap: 5px;
+      margin-bottom: -10px;
+       width: 160px; 
+    }
+
+    .controls-grid button {
+      font-size: clamp(16px, 4vw, 24px);
+      padding: 3px;
+      min-width: 50px;
+      min-height: 50px;
+    }
+
+    .controls-grid .up    { grid-column: 2; grid-row: 1; }
+    .controls-grid .left  { grid-column: 1; grid-row: 2; }
+    .controls-grid .down  { grid-column: 2; grid-row: 3; }
+    .controls-grid .right { grid-column: 3; grid-row: 2; }
+
+    .controls button {
+      font-size: clamp(16px, 4vw, 24px);
+      padding: 10px 20px;
+    }
+
+    .scoreboard {
+     display: flex;
+     align-items: center;
+     justify-content: center; 
+     gap: 20px;
+     margin-left: auto;
+     margin-right: auto;
+     margin-top: 10px;
+     }
+    
+     .scoreboard div {
+     flex: 1;
+     text-align: center;
+     font-size: clamp(14px, 3vw, 20px);
+     }
+
+     #resetScoreButton {
+     font-size: clamp(14px, 3vw, 20px);
+     padding: 4px 4px;
+     background-color: #444;
+     color: white;
+     border: none;
+     margin-left: auto;  /* Allineare a destra */
+     margin-right: -20px; 
+     }
+     #resetScoreButton:hover {
+     background-color: #666;
+     }
+     
+
+  </style>
+</head>
+<body>
+ 
+  <div class="start-screen" id="startScreen">
+    <div class="overlay-content">
+      <h1>🐔Il ratto delle galline 🐔</h1>
+      <p>"Oggi è il giorno giusto! Finalmente è arrivato il momento di fare razzia! Quel contadino rimarrà a secco di uova! Muahaha 🤠😈!!" Pensò Apo al sorgere del sole.<br>Nel frattempo, nell'aia "Insaor", il contadino Bepi aveva appena finito di sfamare i suoi adorati volatili. Si fermò a contemplare l'alba e le sue amate galline razzolare, sia lui che i suoi animali ignari del pericolo imminente.<br><br><br><br><br>ISTRUZIONI: Quest'oggi ti trovi nelle scarpe di Apo, il ladro di galline più temuto da tutti i contadini nell'intera contea di Friulandia. Dovrai metterti nei suoi panni e raccogliere tutte le 7 galline del contadino Bepi, MA ATTENZIONE, perchè Bepi è armato di forca! 👨‍🌾🔱 </p>
+      <button onclick="iniziaGioco()">🎮 Gioca</button>
+    </div>
+  </div>
+
+ <div class="game-container" id="gameContainer">
+   
+ <h1>Il ratto delle galline</h1>
+    <div class="grid" id="gameGrid"></div>
+   
+<div class="controls">
+  <div class="scoreboard">
+    <div id="contadinoWins">👨‍🌾 Vittorie: 0</div>
+      <div class="controls-grid">
+        <button class="up" onclick="move('↑')">↑</button>
+        <button class="left" onclick="move('←')">←</button>
+        <button class="down" onclick="move('↓')">↓</button>
+        <button class="right" onclick="move('→')">→</button>
+      </div>
+    <div id="apoWins">🤠 Vittorie: 0</div>
+ </div>
+ <button id="resetScoreButton" onclick="azzeraPunteggio()">🔁 Azzera punteggi</button>
+ </div>
+
+ </div>
+
+  <div id="gameOverPanel" class="overlay hidden">
+    <div class="overlay-content">
+      <h2>👨‍🌾🔱 Game Over!</h2>
+      <p>Sei stato catturato dal contadino!</p>
+      <button onclick="nascondiGameOverEResetta()">🔁 Reset</button>
+    </div>
+  </div>
+
+  <div id="winPanel" class="overlay hidden">
+    <div class="overlay-content">
+      <h2>🎉 Congratulazioni! Hai vinto!</h2>
+      <p>Hai rubato tutte le galline al contadino!</p>
+      <button onclick="nascondiWinEResetta()">🔁 Reset</button>
+    </div>
+  </div>
+
+  <script>
+
+function iniziaGioco() {
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("gameContainer").style.display = "flex";
+  resetGame();
+}
+
+function caricaVittorieDaBrowser() {
+  const datiSalvati = localStorage.getItem("vittorieGioco");
+  if (datiSalvati) {
+    const dati = JSON.parse(datiSalvati);
+    vittorieApo = dati.apo || 0;
+    vittorieContadino = dati.contadino || 0;
+    aggiornaPunteggio();
+  }
+}
+
+
+    const numRows = 7;
+    const numCols = 7;
+    let apo, galline, impronte, contadino, gallineRaccolte, gameOver;
+    let vittorieApo =0;
+    let vittorieContadino =0;    
+
+    function resetGame() {
+      apo = { x: Math.floor(numRows / 2), y: Math.floor(numCols / 2) };
+      galline = [];
+      impronte = [];
+      contadino = null;
+      gallineRaccolte = 0;
+      gameOver = false;
+
+      while (galline.length < 7) {
+        const r = Math.floor(Math.random() * numRows);
+        const c = Math.floor(Math.random() * numCols);
+        if ((r !== apo.x || c !== apo.y) && !galline.some(g => g[0] === r && g[1] === c)) {
+          galline.push([r, c]);
+        }
+      }
+
+      render();
+    }
+
+    function move(dir) {
+      if (gameOver) return;
+      const dx = { '↑': -1, '↓': 1, '←': 0, '→': 0 }[dir];
+      const dy = { '↑': 0, '↓': 0, '←': -1, '→': 1 }[dir];
+      const newX = apo.x + dx;
+      const newY = apo.y + dy;
+
+      if (newX >= 0 && newX < numRows && newY >= 0 && newY < numCols) {
+        impronte.push({ x: apo.x, y: apo.y, durata: 0 });
+        apo.x = newX;
+        apo.y = newY;
+        render();
+      }
+    }
+
+    function render() {
+      const grid = document.getElementById("gameGrid");
+      grid.innerHTML = "";
+
+      impronte.forEach(i => i.durata++);
+      impronte = impronte.filter(i => i.durata < 3);
+
+      for (let r = 0; r < numRows; r++) {
+        for (let c = 0; c < numCols; c++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+
+          const isApo = (apo.x === r && apo.y === c);
+          const isContadino = contadino && contadino.x === r && contadino.y === c;
+          const isGallina = galline.some(g => g[0] === r && g[1] === c);
+          const isImpronta = impronte.some(i => i.x === r && i.y === c);
+
+          if (isApo && isContadino) {
+            cell.textContent = "👨‍🌾🔱";
+          } else if (isApo) {
+            cell.textContent = gallineRaccolte > 0 ? `🤠🐔x${gallineRaccolte}` : "🤠";
+          } else if (isGallina) {
+            cell.textContent = "";
+          } else if (isImpronta) {
+            cell.textContent = "👣";
+          }
+
+          grid.appendChild(cell);
+        }
+      }
+
+      const idx = galline.findIndex(([x, y]) => x === apo.x && y === apo.y);
+      if (idx !== -1) {
+        galline.splice(idx, 1);
+        gallineRaccolte++;
+
+        if (!contadino) {
+          contadino = generaContadino();
+        }
+      }
+
+      if (galline.length === 0) {
+        document.getElementById("winPanel").classList.remove("hidden");
+        return;
+      }
+
+      if (contadino && gallineRaccolte > 0) {
+        muoviContadino();
+      }
+    }
+
+    function muoviContadino() {
+      if (contadino.x === apo.x && contadino.y === apo.y) {
+        gameOver = true;
+        document.getElementById("gameOverPanel").classList.remove("hidden");
+        return;
+      }
+
+      const isOnImpronta = impronte.some(i => i.x === contadino.x && i.y === contadino.y);
+      const p = Math.random();
+
+      if (isOnImpronta) {
+        if (p < 0.6) {
+          muoviVerso(apo);
+        } else if (p < 0.8) {
+          muoviContadinoCasuale();
+        }
+        // 20% resta fermo
+      } else {
+        if (p < 0.4) {
+          muoviVerso(apo);
+        } else if (p < 0.9 && impronte.length > 0) {
+          let target = impronte[0];
+          let minDist = distanza(contadino, target);
+          for (let i = 1; i < impronte.length; i++) {
+            const d = distanza(contadino, impronte[i]);
+            if (d < minDist) {
+              minDist = d;
+              target = impronte[i];
+            }
+          }
+          muoviVerso(target);
+        } else {
+          muoviContadinoCasuale();
+        }
+      }
+    }
+
+    function muoviVerso(target) {
+      const dx = target.x - contadino.x;
+      const dy = target.y - contadino.y;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        contadino.x += Math.sign(dx);
+      } else if (dy !== 0) {
+        contadino.y += Math.sign(dy);
+      } else if (dx !== 0) {
+        contadino.x += Math.sign(dx);
+      }
+    }
+
+    function muoviContadinoCasuale() {
+      const mosse = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+      const [dx, dy] = mosse[Math.floor(Math.random() * mosse.length)];
+      const nx = contadino.x + dx;
+      const ny = contadino.y + dy;
+      if (nx >= 0 && nx < numRows && ny >= 0 && ny < numCols) {
+        contadino.x = nx;
+        contadino.y = ny;
+      }
+    }
+
+    function generaContadino() {
+      let r, c;
+      do {
+        r = Math.floor(Math.random() * numRows);
+        c = Math.floor(Math.random() * numCols);
+      } while (r === apo.x && c === apo.y);
+      return { x: r, y: c };
+    }
+
+    function distanza(a, b) {
+      return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    }
+
+    function nascondiGameOverEResetta() {
+      document.getElementById("gameOverPanel").classList.add("hidden");
+      vittorieContadino++;
+      aggiornaPunteggio();
+      salvaVittorieNelBrowser();
+      resetGame();
+    }
+
+    function nascondiWinEResetta() {
+      document.getElementById("winPanel").classList.add("hidden");
+      vittorieApo++;
+      aggiornaPunteggio();
+      salvaVittorieNelBrowser();
+      resetGame();
+    }
+
+    function aggiornaPunteggio() {
+     document.getElementById("apoWins").textContent = `🤠 Vittorie: ${vittorieApo}`;
+     document.getElementById("contadinoWins").textContent = `👨‍🌾 Vittorie:      ${vittorieContadino}`;
+    }   
+
+function salvaVittorieNelBrowser() {
+  const dati = {
+    apo: vittorieApo,
+    contadino: vittorieContadino
+  };
+  localStorage.setItem("vittorieGioco", JSON.stringify(dati));
+}
+
+    function azzeraPunteggio() {
+     vittorieApo = 0;
+     vittorieContadino = 0;
+     aggiornaPunteggio();
+     salvaVittorieNelBrowser();
+     }
+
+    caricaVittorieDaBrowser();
+    resetGame();
+  </script>
+</body>
+</html>
